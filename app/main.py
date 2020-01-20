@@ -28,7 +28,7 @@ def startup_event():
     sql_connection = pymysql.connect(host=os.getenv('MYSQL_HOST'),
                                      port=int(os.getenv('MYSQL_PORT')),
                                      user=os.getenv('MYSQL_USER'),
-                                     passwd=os.getenv('MYSQL_PASSWORD'),
+                                     passwd=os.getenv('MYSQL_PASS'),
                                      db=os.getenv('MYSQL_DB'))
 
 
