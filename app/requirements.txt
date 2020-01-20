@@ -2,3 +2,4 @@ fastapi
 Pillow
 boto3
 requests
+pymysql
