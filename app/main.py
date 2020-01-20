@@ -54,6 +54,6 @@ def get_product(barcode: str):
 
     return {
         'barcode': barcode,
-        'name':product['name'],
+        'product_name':product['name'],
         'price':float(product['price']),
     }
