@@ -39,10 +39,11 @@ def shutdown_event():
 
 class Iresponse_product(BaseModel):
     barcode: str
-    name:str
-    price:float
+    product_name: str
+    price: float
 
-@app.get("/_api/product/{barcode}",response_model=Iresponse_product)
+
+@app.get("/_api/product/{barcode}", response_model=Iresponse_product)
 def get_product(barcode: str):
     sql_connection.ping(reconnect=True)
     with sql_connection.cursor(cursor=DictCursor) as cursor:
@@ -54,6 +55,6 @@ def get_product(barcode: str):
 
     return {
         'barcode': barcode,
-        'product_name':product['name'],
-        'price':float(product['price']),
+        'product_name': product['name'],
+        'price': float(product['price']),
     }
