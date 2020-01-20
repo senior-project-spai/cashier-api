@@ -43,6 +43,16 @@ class Iresponse_product(BaseModel):
     price: float
 
 
+class Irequest_transaction(BaseModel):
+    time: int
+    branch_id: int = None
+    customer_id: int = None
+
+
+class Iresponse_transaction(BaseModel):
+    transaction_id: int
+
+
 @app.get("/_api/product/{barcode}", response_model=Iresponse_product)
 def get_product(barcode: str):
     sql_connection.ping(reconnect=True)
@@ -57,4 +67,19 @@ def get_product(barcode: str):
         'barcode': barcode,
         'product_name': product['name'],
         'price': float(product['price']),
+    }
+
+
+@app.post("/_api/transaction")
+def add_transaction(req: Irequest_transaction, response_model=Iresponse_transaction):
+    sql_connection.ping(reconnect=True)
+
+    with sql_connection.cursor(cursor=DictCursor) as cursor:
+        query_product = ("INSERT INTO Transaction (time,branch_id,customer_id)"
+                         "VALUES (%s,%s,%s) ")
+        cursor.execute(query_product, (int(time),
+                                       int(branch_id), int(customer_id)))
+        transaction_id = sql_connection.insert_id()
+    return {
+        'transaction_id': int(transaction_id)
     }
