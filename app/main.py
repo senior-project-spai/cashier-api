@@ -70,16 +70,27 @@ def get_product(barcode: str):
     }
 
 
-@app.post("/_api/transaction")
-def add_transaction(req: Irequest_transaction, response_model=Iresponse_transaction):
+@app.post("/_api/transaction", response_model=Iresponse_transaction)
+def add_transaction(req: Irequest_transaction):
     sql_connection.ping(reconnect=True)
 
     with sql_connection.cursor(cursor=DictCursor) as cursor:
-        query_product = ("INSERT INTO Transaction (time,branch_id,customer_id)"
-                         "VALUES (%s,%s,%s) ")
-        cursor.execute(query_product, (int(time),
-                                       int(branch_id), int(customer_id)))
-        transaction_id = sql_connection.insert_id()
+        query_product_with_customer = ("INSERT INTO `Transaction` (`time`,`branch_id`,`customer_id`) "
+                                       "VALUES (%(time)s,%(branch_id)s,%(customer_id)s)")
+        query_product = ("INSERT INTO `Transaction` (`time`,`branch_id`) "
+                         "VALUES (%(time)s,%(branch_id)s)")
+        if req.customer_id is None:
+            cursor.execute(query_product, {
+                'time': req.time,
+                'branch_id': req.branch_id
+            })
+        else:
+            cursor.execute(query_product_with_customer, {
+                'time': req.time,
+                'branch_id': req.branch_id,
+                'customer_id': req.customer_id
+            })
+        transaction_id = cursor.lastrowid
     return {
         'transaction_id': int(transaction_id)
     }
