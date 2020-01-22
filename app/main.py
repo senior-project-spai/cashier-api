@@ -68,6 +68,11 @@ class Irequest_product_transaction(BaseModel):
     product_list: List[IProduct]
 
 
+class Irequest_transaction_faceimage(BaseModel):
+    transaction_id: int
+    face_image_id: int
+
+
 @app.get("/_api/product/{barcode}", response_model=Iresponse_product)
 def get_product(barcode: str):
     sql_connection.ping(reconnect=True)
@@ -116,16 +121,33 @@ def add_transaction(item: Irequest_transaction):
 @app.post("/_api/product/")
 def add_product_transaction(item: Irequest_product_transaction):
     query_transaction_product = ("INSERT INTO `TransactionProduct` (`transaction_id`,`product_id`,`quantity`) "
-        "VALUES (%(transaction_id)s,%(product_id)s,%(quantity)s)")
-    
+                                 "VALUES (%(transaction_id)s,%(product_id)s,%(quantity)s)")
+
     sql_connection.ping(reconnect=True)
 
     with sql_connection.cursor() as cursor:
-    
+
         for product in item.product_list:
             cursor.execute(query_transaction_product, {
                 'transaction_id': item.transaction_id,
                 'product_id': product.barcode,
                 'quantity': product.quantity
             })
+        sql_connection.commit()
+
+
+@app.post("/_api/faceimage/")
+def add_transaction_faceimage(item: Irequest_transaction_faceimage):
+    query_transaction_product = ("INSERT INTO `TransactionFaceImage` (`transaction_id`,`face_image_id`) "
+                                 "VALUES (%(transaction_id)s,%(face_image_id)s)")
+
+    sql_connection.ping(reconnect=True)
+
+    with sql_connection.cursor() as cursor:
+
+        cursor.execute(query_transaction_product, {
+            'transaction_id': item.transaction_id,
+            'face_image_id': item.face_image_id,
+        })
+
         sql_connection.commit()
