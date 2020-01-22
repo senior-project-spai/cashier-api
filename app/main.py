@@ -5,6 +5,9 @@ from starlette.middleware.cors import CORSMiddleware
 # pydantic for Model
 from pydantic import BaseModel
 
+# List for Model
+from typing import List, Set
+
 # sql
 import pymysql
 from pymysql.cursors import DictCursor
@@ -53,6 +56,18 @@ class Iresponse_transaction(BaseModel):
     transaction_id: int
 
 
+class IProduct(BaseModel):
+    barcode: str
+    product_name: str
+    price: float
+    quantity: int
+
+
+class Irequest_product_transaction(BaseModel):
+    transaction_id: int
+    product_list: List[IProduct]
+
+
 @app.get("/_api/product/{barcode}", response_model=Iresponse_product)
 def get_product(barcode: str):
     sql_connection.ping(reconnect=True)
@@ -96,3 +111,21 @@ def add_transaction(item: Irequest_transaction):
     return {
         'transaction_id': int(transaction_id)
     }
+
+
+@app.post("/_api/product/")
+def add_product_transaction(item: Irequest_product_transaction):
+    query_transaction_product = ("INSERT INTO `TransactionProduct` (`transaction_id`,`product_id`,`quantity`) "
+        "VALUES (%(transaction_id)s,%(product_id)s,%(quantity)s)")
+    
+    sql_connection.ping(reconnect=True)
+
+    with sql_connection.cursor() as cursor:
+    
+        for product in item.product_list:
+            cursor.execute(query_transaction_product, {
+                'transaction_id': item.transaction_id,
+                'product_id': product.barcode,
+                'quantity': product.quantity
+            })
+        sql_connection.commit()
