@@ -118,7 +118,7 @@ def add_transaction(item: Irequest_transaction):
     }
 
 
-@app.post("/_api/product/")
+@app.post("/_api/transaction/product/")
 def add_product_transaction(item: Irequest_product_transaction):
     query_transaction_product = ("INSERT INTO `TransactionProduct` (`transaction_id`,`product_id`,`quantity`) "
                                  "VALUES (%(transaction_id)s,%(product_id)s,%(quantity)s)")
@@ -136,7 +136,7 @@ def add_product_transaction(item: Irequest_product_transaction):
         sql_connection.commit()
 
 
-@app.post("/_api/faceimage/")
+@app.post("/_api/transaction/faceimage/")
 def add_transaction_faceimage(item: Irequest_transaction_faceimage):
     query_transaction_product = ("INSERT INTO `TransactionFaceImage` (`transaction_id`,`face_image_id`) "
                                  "VALUES (%(transaction_id)s,%(face_image_id)s)")
