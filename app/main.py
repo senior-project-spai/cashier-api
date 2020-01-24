@@ -151,3 +151,8 @@ def add_transaction_faceimage(item: Irequest_transaction_faceimage):
         })
 
         sql_connection.commit()
+
+# For check with probe in openshift
+@app.get('/healthz')
+def health_check():
+    return
