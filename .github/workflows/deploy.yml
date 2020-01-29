@@ -9,7 +9,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Try to new-app and expose new services
-      uses: redhat-developer/openshift-actions@v1.0
+      uses: redhat-developer/openshift-actions@v1.1
       with:
         version: '3.11.36'
         openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
@@ -19,7 +19,7 @@ jobs:
           'expose svc/${{secrets.OPENSHIFT_APPLICATION_NAME}} -n ${{secrets.OPENSHIFT_PROJECT}}'
       continue-on-error: true
     - name: Trigger Build
-      uses: redhat-developer/openshift-actions@v1.0
+      uses: redhat-developer/openshift-actions@v1.1
       with:
         version: '3.11.36'
         openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
