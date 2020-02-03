@@ -25,21 +25,6 @@ app.add_middleware(
 )
 
 
-@app.on_event('startup')
-def startup_event():
-    global sql_connection, kafka_producer
-    sql_connection = pymysql.connect(host=os.getenv('MYSQL_HOST'),
-                                     port=int(os.getenv('MYSQL_PORT')),
-                                     user=os.getenv('MYSQL_USER'),
-                                     passwd=os.getenv('MYSQL_PASS'),
-                                     db=os.getenv('MYSQL_DB'))
-
-
-@app.on_event('shutdown')
-def shutdown_event():
-    sql_connection.close()
-
-
 class Iresponse_product(BaseModel):
     barcode: str
     product_name: str
@@ -75,6 +60,11 @@ class Irequest_transaction_faceimage(BaseModel):
 
 @app.get("/_api/product/{barcode}", response_model=Iresponse_product)
 def get_product(barcode: str):
+    sql_connection = pymysql.connect(host=os.getenv('MYSQL_HOST'),
+                                     port=int(os.getenv('MYSQL_PORT')),
+                                     user=os.getenv('MYSQL_USER'),
+                                     passwd=os.getenv('MYSQL_PASS'),
+                                     db=os.getenv('MYSQL_DB'))
     sql_connection.ping(reconnect=True)
     with sql_connection.cursor(cursor=DictCursor) as cursor:
         query_product = ("SELECT *"
@@ -82,7 +72,7 @@ def get_product(barcode: str):
                          "WHERE id = %s ")
         cursor.execute(query_product, (int(barcode)))
         product = cursor.fetchone()
-
+    sql_connection.close()
     return {
         'barcode': barcode,
         'product_name': product['name'],
@@ -92,7 +82,11 @@ def get_product(barcode: str):
 
 @app.post("/_api/transaction/", response_model=Iresponse_transaction)
 def add_transaction(item: Irequest_transaction):
-    sql_connection.ping(reconnect=True)
+    sql_connection = pymysql.connect(host=os.getenv('MYSQL_HOST'),
+                                     port=int(os.getenv('MYSQL_PORT')),
+                                     user=os.getenv('MYSQL_USER'),
+                                     passwd=os.getenv('MYSQL_PASS'),
+                                     db=os.getenv('MYSQL_DB'))
 
     with sql_connection.cursor() as cursor:
         query_product_with_customer = ("INSERT INTO `Transaction` (`time`,`branch_id`,`customer_id`) "
@@ -113,6 +107,7 @@ def add_transaction(item: Irequest_transaction):
 
         sql_connection.commit()  # commit changes
         transaction_id = cursor.lastrowid
+    sql_connection.close()
     return {
         'transaction_id': int(transaction_id)
     }
@@ -123,7 +118,11 @@ def add_product_transaction(item: Irequest_product_transaction):
     query_transaction_product = ("INSERT INTO `TransactionProduct` (`transaction_id`,`product_id`,`quantity`) "
                                  "VALUES (%(transaction_id)s,%(product_id)s,%(quantity)s)")
 
-    sql_connection.ping(reconnect=True)
+    sql_connection = pymysql.connect(host=os.getenv('MYSQL_HOST'),
+                                     port=int(os.getenv('MYSQL_PORT')),
+                                     user=os.getenv('MYSQL_USER'),
+                                     passwd=os.getenv('MYSQL_PASS'),
+                                     db=os.getenv('MYSQL_DB'))
 
     with sql_connection.cursor() as cursor:
 
@@ -134,6 +133,8 @@ def add_product_transaction(item: Irequest_product_transaction):
                 'quantity': product.quantity
             })
         sql_connection.commit()
+    sql_connection.close()
+    
 
 
 @app.post("/_api/transaction/faceimage/")
@@ -141,7 +142,11 @@ def add_transaction_faceimage(item: Irequest_transaction_faceimage):
     query_transaction_product = ("INSERT INTO `TransactionFaceImage` (`transaction_id`,`face_image_id`) "
                                  "VALUES (%(transaction_id)s,%(face_image_id)s)")
 
-    sql_connection.ping(reconnect=True)
+    sql_connection = pymysql.connect(host=os.getenv('MYSQL_HOST'),
+                                     port=int(os.getenv('MYSQL_PORT')),
+                                     user=os.getenv('MYSQL_USER'),
+                                     passwd=os.getenv('MYSQL_PASS'),
+                                     db=os.getenv('MYSQL_DB'))
 
     with sql_connection.cursor() as cursor:
 
@@ -151,6 +156,8 @@ def add_transaction_faceimage(item: Irequest_transaction_faceimage):
         })
 
         sql_connection.commit()
+    sql_connection.close()
+
 
 # For check with probe in openshift
 @app.get('/healthz')
