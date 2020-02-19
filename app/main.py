@@ -82,11 +82,11 @@ def get_product(barcode: str):
 
 @app.post("/_api/transaction/", response_model=Iresponse_transaction)
 def add_transaction(item: Irequest_transaction):
-    sql_connection = pymysql.connect(host=os.getenv('MYSQL_HOST'),
-                                     port=int(os.getenv('MYSQL_PORT')),
-                                     user=os.getenv('MYSQL_USER'),
-                                     passwd=os.getenv('MYSQL_PASS'),
-                                     db=os.getenv('MYSQL_DB'))
+    sql_connection = pymysql.connect(host=os.getenv('MYSQL_MASTER_HOST'),
+                                     port=int(os.getenv('MYSQL_MASTER_PORT')),
+                                     user=os.getenv('MYSQL_MASTER_USER'),
+                                     passwd=os.getenv('MYSQL_MASTER_PASS'),
+                                     db=os.getenv('MYSQL_MASTER_DB'))
 
     with sql_connection.cursor() as cursor:
         query_product_with_customer = ("INSERT INTO `Transaction` (`time`,`branch_id`,`customer_id`) "
@@ -118,11 +118,11 @@ def add_product_transaction(item: Irequest_product_transaction):
     query_transaction_product = ("INSERT INTO `TransactionProduct` (`transaction_id`,`product_id`,`quantity`) "
                                  "VALUES (%(transaction_id)s,%(product_id)s,%(quantity)s)")
 
-    sql_connection = pymysql.connect(host=os.getenv('MYSQL_HOST'),
-                                     port=int(os.getenv('MYSQL_PORT')),
-                                     user=os.getenv('MYSQL_USER'),
-                                     passwd=os.getenv('MYSQL_PASS'),
-                                     db=os.getenv('MYSQL_DB'))
+    sql_connection = pymysql.connect(host=os.getenv('MYSQL_MASTER_HOST'),
+                                     port=int(os.getenv('MYSQL_MASTER_PORT')),
+                                     user=os.getenv('MYSQL_MASTER_USER'),
+                                     passwd=os.getenv('MYSQL_MASTER_PASS'),
+                                     db=os.getenv('MYSQL_MASTER_DB'))
 
     with sql_connection.cursor() as cursor:
 
@@ -142,11 +142,11 @@ def add_transaction_faceimage(item: Irequest_transaction_faceimage):
     query_transaction_product = ("INSERT INTO `TransactionFaceImage` (`transaction_id`,`face_image_id`) "
                                  "VALUES (%(transaction_id)s,%(face_image_id)s)")
 
-    sql_connection = pymysql.connect(host=os.getenv('MYSQL_HOST'),
-                                     port=int(os.getenv('MYSQL_PORT')),
-                                     user=os.getenv('MYSQL_USER'),
-                                     passwd=os.getenv('MYSQL_PASS'),
-                                     db=os.getenv('MYSQL_DB'))
+    sql_connection = pymysql.connect(host=os.getenv('MYSQL_MASTER_HOST'),
+                                     port=int(os.getenv('MYSQL_MASTER_PORT')),
+                                     user=os.getenv('MYSQL_MASTER_USER'),
+                                     passwd=os.getenv('MYSQL_MASTER_PASS'),
+                                     db=os.getenv('MYSQL_MASTER_DB'))
 
     with sql_connection.cursor() as cursor:
 
