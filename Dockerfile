@@ -14,6 +14,7 @@ RUN apk --no-cache add build-base \
                        harfbuzz-dev \
                        fribidi-dev
 
-COPY ./app /app
+COPY ./app/requirements.txt .
+RUN pip install -r requirements.txt
 
-RUN pip install -r /app/requirements.txt
+COPY ./app /app
