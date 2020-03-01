@@ -14,6 +14,10 @@ from pymysql.cursors import DictCursor
 
 import os
 
+# logging
+import logging
+logger = logging.getLogger('api')
+
 app = FastAPI()
 
 app.add_middleware(
@@ -56,6 +60,7 @@ class Irequest_product_transaction(BaseModel):
 class Irequest_transaction_faceimage(BaseModel):
     transaction_id: int
     face_image_id: int
+
 
 class Iresponse_get_transaction(BaseModel):
     id: int
@@ -162,19 +167,6 @@ def query_transaction_product(transaction_id: int):
     return rows
 
 
-@app.get("/_api/transaction/{transaction_id}", response_model=Iresponse_get_transaction)
-def get_transaction(transaction_id: int):
-    transaction_result = query_transaction(transaction_id)
-    
-    # If transaction is not found, return 404
-    if not transaction_result:
-        raise HTTPException(status_code=404, detail="Transaction not found")
-
-    product_results = query_transaction_product(transaction_id)
-    transaction_result['products'] = product_results
-    return transaction_result
-
-
 @app.post("/_api/transaction/product/")
 def add_product_transaction(item: Irequest_product_transaction):
     query_transaction_product = ("INSERT INTO `TransactionProduct` (`transaction_id`,`product_id`,`quantity`) "
@@ -219,6 +211,19 @@ def add_transaction_faceimage(item: Irequest_transaction_faceimage):
         sql_connection.commit()
     sql_connection.close()
 
+
+@app.get("/_api/transaction/{transaction_id}", response_model=Iresponse_get_transaction)
+def get_transaction(transaction_id: int):
+    logger.debug("Transaction ID: {}".format(transaction_id))
+    transaction_result = query_transaction(transaction_id)
+
+    # If transaction is not found, return 404
+    if not transaction_result:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+
+    product_results = query_transaction_product(transaction_id)
+    transaction_result['products'] = product_results
+    return transaction_result
 
 # For check with probe in openshift
 @app.get('/healthz')
