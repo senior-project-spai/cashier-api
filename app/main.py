@@ -6,7 +6,7 @@ from starlette.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 # List for Model
-from typing import List, Set
+from typing import List, Set, Dict
 
 # sql
 import pymysql
@@ -56,6 +56,13 @@ class Irequest_product_transaction(BaseModel):
 class Irequest_transaction_faceimage(BaseModel):
     transaction_id: int
     face_image_id: int
+
+class Iresponse_get_transaction(BaseModel):
+    id: int
+    time: int
+    branch_id: int
+    customer_id: int
+    products: List[Dict]
 
 
 @app.get("/_api/product/{barcode}", response_model=Iresponse_product)
@@ -113,6 +120,61 @@ def add_transaction(item: Irequest_transaction):
     }
 
 
+def query_transaction(transaction_id: int):
+    sql_connection = pymysql.connect(host=os.getenv('MYSQL_MASTER_HOST'),
+                                     port=int(os.getenv('MYSQL_MASTER_PORT')),
+                                     user=os.getenv('MYSQL_MASTER_USER'),
+                                     passwd=os.getenv('MYSQL_MASTER_PASS'),
+                                     db=os.getenv('MYSQL_MASTER_DB'), autocommit=True)
+    row = None
+    with sql_connection.cursor(cursor=DictCursor) as cursor:
+        query = ("SELECT id, time, branch_id, customer_id "
+                 "FROM Transaction "
+                 "WHERE id=%(transaction_id)s "
+                 "LIMIT 1;")
+        cursor.execute(query, {'transaction_id': transaction_id})
+        cursor.fetchone()
+    sql_connection.close()
+    return row
+
+
+def query_transaction_product(transaction_id: int):
+    sql_connection = pymysql.connect(host=os.getenv('MYSQL_MASTER_HOST'),
+                                     port=int(os.getenv('MYSQL_MASTER_PORT')),
+                                     user=os.getenv('MYSQL_MASTER_USER'),
+                                     passwd=os.getenv('MYSQL_MASTER_PASS'),
+                                     db=os.getenv('MYSQL_MASTER_DB'), autocommit=True)
+    rows = None
+    with sql_connection.cursor(cursor=DictCursor) as cursor:
+        query = ("SELECT "
+                 "  TransactionProduction.product_id AS id, "
+                 "  TransactionProduction.quantity, "
+                 "  Product.name, "
+                 "  Product.price, "
+                 "FROM "
+                 "  TransactionProduct "
+                 "  INNER JOIN Product ON TransactionProduct.product_id = Product.id "
+                 "WHERE "
+                 "   TransactionProduct.transaction_id = %(transaction_id)s ")
+        cursor.execute(query, {'transaction_id': transaction_id})
+        rows = cursor.fetchall()
+    sql_connection.close()
+    return rows
+
+
+@app.get("/_api/transaction/{transaction_id}", response_model=Iresponse_get_transaction)
+def get_transaction(transaction_id: int):
+    transaction_result = query_transaction(transaction_id)
+    
+    # If transaction is not found, return 404
+    if not transaction_id:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+
+    product_results = query_transaction_product(transaction_id)
+    transaction_result['products'] = product_results
+    return transaction_result
+
+
 @app.post("/_api/transaction/product/")
 def add_product_transaction(item: Irequest_product_transaction):
     query_transaction_product = ("INSERT INTO `TransactionProduct` (`transaction_id`,`product_id`,`quantity`) "
@@ -134,7 +196,6 @@ def add_product_transaction(item: Irequest_product_transaction):
             })
         sql_connection.commit()
     sql_connection.close()
-    
 
 
 @app.post("/_api/transaction/faceimage/")
