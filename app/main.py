@@ -214,7 +214,7 @@ def add_transaction_faceimage(item: Irequest_transaction_faceimage):
 
 @app.get("/_api/transaction/{transaction_id}", response_model=Iresponse_get_transaction)
 def get_transaction(transaction_id: int):
-    logger.debug("Transaction ID: {}".format(transaction_id))
+    logger.info("Transaction ID: {}".format(transaction_id))
     transaction_result = query_transaction(transaction_id)
 
     # If transaction is not found, return 404
