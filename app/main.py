@@ -167,7 +167,7 @@ def get_transaction(transaction_id: int):
     transaction_result = query_transaction(transaction_id)
     
     # If transaction is not found, return 404
-    if not transaction_id:
+    if not transaction_result:
         raise HTTPException(status_code=404, detail="Transaction not found")
 
     product_results = query_transaction_product(transaction_id)
