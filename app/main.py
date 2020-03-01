@@ -14,9 +14,6 @@ from pymysql.cursors import DictCursor
 
 import os
 
-# logging
-import logging
-logger = logging.getLogger('api')
 
 app = FastAPI()
 
@@ -214,12 +211,11 @@ def add_transaction_faceimage(item: Irequest_transaction_faceimage):
 
 @app.get("/_api/transaction/{transaction_id}", response_model=Iresponse_get_transaction)
 def get_transaction(transaction_id: int):
-    logger.info("Transaction ID: {}".format(transaction_id))
     transaction_result = query_transaction(transaction_id)
 
     # If transaction is not found, return 404
     if not transaction_result:
-        raise HTTPException(status_code=404, detail="Transaction not found")
+        raise HTTPException(status_code=404, detail=f"Transaction ID:{transaction_id} not found")
 
     product_results = query_transaction_product(transaction_id)
     transaction_result['products'] = product_results
