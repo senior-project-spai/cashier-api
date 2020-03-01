@@ -150,7 +150,7 @@ def query_transaction_product(transaction_id: int):
                  "  TransactionProduction.product_id AS id, "
                  "  TransactionProduction.quantity, "
                  "  Product.name, "
-                 "  Product.price, "
+                 "  Product.price "
                  "FROM "
                  "  TransactionProduct "
                  "  INNER JOIN Product ON TransactionProduct.product_id = Product.id "
