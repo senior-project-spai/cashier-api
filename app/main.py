@@ -147,8 +147,8 @@ def query_transaction_product(transaction_id: int):
     rows = None
     with sql_connection.cursor(cursor=DictCursor) as cursor:
         query = ("SELECT "
-                 "  TransactionProduction.product_id AS id, "
-                 "  TransactionProduction.quantity, "
+                 "  TransactionProduct.product_id AS id, "
+                 "  TransactionProduct.quantity, "
                  "  Product.name, "
                  "  Product.price "
                  "FROM "
