@@ -135,7 +135,7 @@ def query_transaction(transaction_id: int):
                  "WHERE id=%(transaction_id)s "
                  "LIMIT 1;")
         cursor.execute(query, {'transaction_id': transaction_id})
-        cursor.fetchone()
+        row = cursor.fetchone()
     sql_connection.close()
     return row
 
