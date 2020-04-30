@@ -72,4 +72,4 @@ spec:
     port: 80
   selector:
     app: "cashier-api"
-  type: "NodePort"
+  type: "LoadBalancer"
